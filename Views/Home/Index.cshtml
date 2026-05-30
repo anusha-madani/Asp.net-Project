@@ -1,0 +1,132 @@
+﻿@model WeatherDashboard.Models.WeatherViewModel
+
+@{
+    ViewData["Title"] = "Aesthetic Weather Dashboard";
+
+    string bgGradient = "linear-gradient(135deg, #0f2027, #203a43, #2c5364)"; 
+    if (Model != null)
+    {
+        bgGradient = Model.WeatherCondition.ToLower() switch
+        {
+            "clouds" => "linear-gradient(135deg, #61a5c2, #2c3e50)", // Cloudy Blue-Gray
+            "rain" => "linear-gradient(135deg, #1f4037, #99f2c8)", // Rainy Emerald
+            "clear" => "linear-gradient(135deg, #ff9966, #ff5e62)", // Sunny Warm Sunset
+            "thunderstorm" => "linear-gradient(135deg, #141e30, #243b55)", // Dark Storm
+            _ => "linear-gradient(135deg, #0f2027, #203a43, #2c5364)"
+        };
+    }
+}
+
+<style>
+    body {
+        background: @bgGradient;
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+        color: #fff;
+        transition: background 0.8s ease;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+    .search-btn {
+        background: #ffffff;
+        color: #2c3e50;
+        border: none;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .search-btn:hover {
+        background: #ff5e62;
+        color: white;
+        transform: translateY(-2px);
+    }
+    .search-input {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: white !important;
+        border-radius: 30px !important;
+    }
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .stat-box {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <!-- Search Form -->
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="city" class="form-control form-control-lg search-input" placeholder="Search any city... (e.g. London, Tokyo)" required />
+                    <button type="submit" class="btn btn-lg search-btn px-4 ms-2">Find</button>
+                </div>
+            </form>
+
+            <!-- Error Message Handler -->
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger style-alert border-0 text-center text-white bg-danger bg-opacity-50 blur-card mb-4" style="border-radius: 15px;">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <!-- Main Dashboard Display -->
+            @if (Model != null)
+            {
+                <div class="glass-card text-center animate__animated animate__fadeIn">
+                    <h2 class="display-5 fw-bold mb-1">@Model.CityName</h2>
+                    <p class="text-uppercase tracking-wider mb-4 text-white-50">@DateTime.Now.ToString("dddd, dd MMMM")</p>
+                    
+                    <!-- Weather Big Icon & Temperature -->
+                    <div class="my-4 d-flex align-items-center justify-content-center">
+                        <img src="https://openweathermap.org/img/wn/@(Model.IconCode)@@4x.png" alt="Weather Icon" style="width: 130px; height: 130px; filter: drop-shadow(0px 8px 8px rgba(0,0,0,0.3));" />
+                        <div class="ms-3">
+                            <span class="display-2 fw-bold">@Math.Round(Model.Main.Temperature)°C</span>
+                            <h4 class="text-capitalize text-white text-opacity-75 mb-0">@Model.Description</h4>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" style="border-color: rgba(255,255,255,0.15);" />
+
+                    <!-- Detailed Stats Grid -->
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="stat-box">
+                                <small class="text-white-50 d-block mb-1">Feels Like</small>
+                                <span class="h5 fw-bold">@Math.Round(Model.Main.FeelsLike)°C</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box">
+                                <small class="text-white-50 d-block mb-1">Humidity</small>
+                                <span class="h5 fw-bold">@Model.Main.Humidity%</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box">
+                                <small class="text-white-50 d-block mb-1">Wind Speed</small>
+                                <span class="h5 fw-bold">@Model.Wind.Speed m/s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
